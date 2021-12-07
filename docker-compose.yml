@@ -43,6 +43,8 @@ services:
     image: nginx:1.17-alpine
     container_name: fidibo-nginx
     restart: unless-stopped
+    ports:
+      - 8880:80
     volumes:
       - ./:/var/www
       - ./docker-compose/nginx:/etc/nginx/conf.d
