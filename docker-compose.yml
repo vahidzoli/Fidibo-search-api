@@ -1,0 +1,54 @@
+version: "3.7"
+
+services:
+  app:
+    build:
+      args:
+        user: book
+        uid: 1000
+      context: ./
+      dockerfile: Dockerfile
+    image: fidibo:test
+    container_name: fidibo-app
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ./:/var/www
+    networks:
+      - fidibo
+
+  db:
+      image: mysql:5.7
+      volumes:
+        - ./docker-compose/mysql:/var/lib/mysql
+      restart: unless-stopped
+      environment:
+        MYSQL_DATABASE: ${DB_DATABASE}
+        MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+        MYSQL_PASSWORD: ${DB_PASSWORD}
+        MYSQL_USER: ${DB_USERNAME}
+      networks:
+        - fidibo
+
+  redis:
+    image: "bitnami/redis:6.2-debian-10"
+    environment:
+      - REDIS_PASSWORD=q3eVTV654b
+    networks:
+      - fidibo
+    volumes:
+      - ./docker-compose/redis-persistence:/bitnami/redis/data
+
+  nginx:
+    image: nginx:1.17-alpine
+    container_name: fidibo-nginx
+    restart: unless-stopped
+    volumes:
+      - ./:/var/www
+      - ./docker-compose/nginx:/etc/nginx/conf.d
+    networks:
+      - fidibo
+
+networks:
+  fidibo:
+    driver: bridge
